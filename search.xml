@@ -2204,4 +2204,234 @@
 <p>如果 Credentials 为 true 时,<strong>Access-Control-Allow-Origin</strong> 不能是 * ，可配置为具体的 ip </p>
 ]]></content>
   </entry>
+  <entry>
+    <title>使用 Git 上传项目</title>
+    <url>/2022/12/04/%E4%BD%BF%E7%94%A8%20Git%20%E4%B8%8A%E4%BC%A0%E9%A1%B9%E7%9B%AE/</url>
+    <content><![CDATA[<h1 id="上传项目到GitHub"><a href="#上传项目到GitHub" class="headerlink" title="上传项目到GitHub"></a>上传项目到GitHub</h1><ol>
+<li>全局绑定账户</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"># 绑定用户</span><br><span class="line">git config --global user.name <span class="string">&quot; &quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>2.进到本地项目目录</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git init</span><br><span class="line">git add .</span><br><span class="line">git coommit - m &quot;第一次上传&quot;</span><br></pre></td></tr></table></figure>
+
+<p>已将本地仓库建立好</p>
+<p>3.关联 GitHub 仓库 (示例宠物医院管理系统仓库地址)</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 关联 GitHub 仓库地址</span><br><span class="line">git remote add origin git@github.com:xxxx.git</span><br><span class="line"># 上传本地代码 使用 origin 来指定上传的分支</span><br><span class="line">git push -u origin master</span><br></pre></td></tr></table></figure>
+
+
+
+<p>git remote add origin <a href="mailto:&#103;&#105;&#x74;&#x40;&#103;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#111;&#109;">&#103;&#105;&#x74;&#x40;&#103;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#111;&#109;</a>:lubenchu&#x2F;PetHospitalManagementSystem.git 报错解决</p>
+<p>查看当前关联的仓库：git remote -v </p>
+<p>解除当前关联仓库：git remote rm origin </p>
+]]></content>
+      <categories>
+        <category>git</category>
+      </categories>
+      <tags>
+        <tag>GitHub</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>项目部署上线（用户中心示例）</title>
+    <url>/2022/12/04/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B/</url>
+    <content><![CDATA[<h1 id="项目部署上线-用户中心示例"><a href="#项目部署上线-用户中心示例" class="headerlink" title="项目部署上线-用户中心示例"></a>项目部署上线-用户中心示例</h1><h2 id="多环境"><a href="#多环境" class="headerlink" title="多环境"></a>多环境</h2><p>参考文章：<a href="https://blog.csdn.net/weixin_41701290/article/details/120173283">https://blog.csdn.net/weixin_41701290/article/details/120173283</a></p>
+<p>本地开发：localhost（127.0.0.1）</p>
+<p>多环境：指同一套项目代码在不同的阶段需要根据实际情况来调整配置并且部署到不同的机器上。</p>
+<p>为什么需要？</p>
+<ol>
+<li>每个环境互不影响</li>
+<li>区分不同的阶段：开发 &#x2F; 测试 &#x2F; 生产</li>
+<li>对项目进行优化：<ol>
+<li>本地日志级别</li>
+<li>精简依赖，节省项目体积</li>
+<li>项目的环境 &#x2F; 参数可以调整，比如 JVM 参数</li>
+</ol>
+</li>
+</ol>
+<p>针对不同环境做不同的事情。</p>
+<p>多环境分类：</p>
+<ol>
+<li>本地环境（自己的电脑）localhost</li>
+<li>开发环境（远程开发）大家连同一台机器，为了大家开发方便</li>
+<li>测试环境（测试）开发 &#x2F; 测试 &#x2F; 产品，单元测试 &#x2F; 性能测试 &#x2F; 功能测试 &#x2F; 系统集成测试，独立的数据库、独立的服务器</li>
+<li>预发布环境（体验服）：和正式环境一致，正式数据库，更严谨，查出更多问题</li>
+<li>正式环境（线上，公开对外访问的项目）：尽量不要改动，保证上线前的代码是 “完美” 运行</li>
+<li>沙箱环境（实验环境）：为了做实验</li>
+</ol>
+<h3 id="前端多环境实战"><a href="#前端多环境实战" class="headerlink" title="前端多环境实战"></a>前端多环境实战</h3><ul>
+<li><p>请求地址</p>
+<ul>
+<li><p>开发环境：localhost:8000</p>
+</li>
+<li><p>线上环境：user-backend.code-nav.cn</p>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">startFront</span>(<span class="params">env</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(env === <span class="string">&#x27;prod&#x27;</span>) &#123;</span><br><span class="line">        <span class="comment">// 不输出注释 </span></span><br><span class="line">        <span class="comment">// 项目优化</span></span><br><span class="line">        <span class="comment">// 修改请求地址</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 保持本地开发逻辑</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用了 umi 框架，build 时会自动传入 NODE_ENV &#x3D;&#x3D; production 参数，start NODE_ENV 参数为 development</p>
+</li>
+<li><p>启动方式</p>
+<ul>
+<li>开发环境：npm run start（本地启动，监听端口、自动更新）</li>
+<li>线上环境：npm run build（项目构建打包），可以使用 serve 工具启动（npm i -g serve）</li>
+</ul>
+</li>
+<li><p>项目的配置</p>
+<p>不同的项目（框架）都有不同的配置文件，umi 的配置文件是 config，可以在配置文件后添加对应的环境名称后缀来区分开发环境和生产环境。参考文档：<a href="https://umijs.org/zh-CN/docs/deployment">https://umijs.org/zh-CN/docs/deployment</a></p>
+<ul>
+<li>开发环境：config.dev.ts</li>
+<li>生产环境：config.prod.ts</li>
+<li>公共配置：config.ts 不带后缀</li>
+</ul>
+</li>
+</ul>
+<h3 id="后端多环境实战"><a href="#后端多环境实战" class="headerlink" title="后端多环境实战"></a>后端多环境实战</h3><p>SpringBoot 项目，通过 application.yml 添加不同的后缀来区分配置文件</p>
+<p>可以在启动项目时传入环境变量：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">java -jar .\user-center-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod</span><br></pre></td></tr></table></figure>
+
+<p>主要是改：</p>
+<ul>
+<li><p>依赖的环境地址</p>
+<ul>
+<li><p>数据库地址</p>
+</li>
+<li><p>缓存地址</p>
+</li>
+<li><p>消息队列地址</p>
+</li>
+<li><p>项目端口号</p>
+</li>
+</ul>
+</li>
+<li><p>服务器配置</p>
+</li>
+</ul>
+<h2 id="项目部署"><a href="#项目部署" class="headerlink" title="项目部署"></a>项目部署</h2><p>参考文章：<a href="https://www.bilibili.com/read/cv16179200">https://www.bilibili.com/read/cv16179200</a></p>
+<p>需要 Linux 服务器（建议大家用 CentOS 8+ &#x2F; 7.6 以上）</p>
+<h3 id="原始部署"><a href="#原始部署" class="headerlink" title="原始部署"></a>原始部署</h3><p>什么都自己装</p>
+<h4 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h4><p>需要 web 服务器：<strong>nginx</strong> 、apache、tomcat</p>
+<p>安装 nginx 服务器：</p>
+<ol>
+<li><p>用系统自带的软件包管理器快速安装，比如 centos 的 yum</p>
+</li>
+<li><p>自己到官网安装（参考文章）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -o nginx-1.21.6.tar.gz http://nginx.org/download/nginx-1.21.6.tar.gz</span><br><span class="line"></span><br><span class="line">tar -zxvf nginx-1.21.6.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> nginx-1.21.6</span><br><span class="line"></span><br><span class="line">   37  2022-04-17 23:30:09 yum install pcre pcre-devel -y</span><br><span class="line">   39  2022-04-17 23:30:59 yum install openssl openssl-devel -y</span><br><span class="line">   41  2022-04-17 23:31:57 ./configure --with-http_ssl_module --with-http_v2_module --with-stream</span><br><span class="line">   42  2022-04-17 23:32:13 make</span><br><span class="line">   43  2022-04-17 23:32:54 make install</span><br><span class="line">   48  2022-04-17 23:33:40 <span class="built_in">ls</span> /usr/local/nginx/sbin/nginx</span><br><span class="line">   vim /etc/profile</span><br><span class="line">  在最后一行添加：<span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/local/nginx/sbin	</span><br><span class="line">  </span><br><span class="line">  nginx</span><br><span class="line">  </span><br><span class="line">  netstat -ntlp 查看启动情况</span><br></pre></td></tr></table></figure>
+
+<p>注意 nginx 权限</p>
+</li>
+</ol>
+<h4 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h4><p>java、maven</p>
+<p>安装：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install -y java-1.8.0-openjdk*</span><br><span class="line"></span><br><span class="line">curl -o apache-maven-3.8.5-bin.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz</span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> xxx 下载代码</span><br><span class="line"></span><br><span class="line">打包构建，跳过测试</span><br><span class="line">mvn package -DskipTests</span><br><span class="line"></span><br><span class="line">java -jar ./user-center-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="宝塔-Linux-部署"><a href="#宝塔-Linux-部署" class="headerlink" title="宝塔 Linux 部署"></a>宝塔 Linux 部署</h3><p>Linux 运维面板</p>
+<p>官方安装教程：<a href="https://www.bt.cn/new/download.html">https://www.bt.cn/new/download.html</a></p>
+<p>方便管理服务器、方便安装软件</p>
+<h3 id="前端托管"><a href="#前端托管" class="headerlink" title="前端托管"></a>前端托管</h3><p>前端腾讯云 web 应用托管（比容器化更傻瓜式，不需要自己写构建应用的命令，就能启动前端项目）</p>
+<blockquote>
+<p><a href="https://console.cloud.tencent.com/webify/new">https://console.cloud.tencent.com/webify/new</a></p>
+</blockquote>
+<ul>
+<li>小缺点：需要将代码放到代码托管平台上</li>
+<li>优势：不用写命令、代码更新时自动构建</li>
+</ul>
+<h3 id="Docker-部署"><a href="#Docker-部署" class="headerlink" title="Docker 部署"></a>Docker 部署</h3><p>docker 是容器，可以将项目的环境（比如 java、nginx）和项目的代码一起打包成镜像，所有同学都能下载镜像，更容易分发和移植。</p>
+<p>再启动项目时，不需要敲一大堆命令，而是直接下载镜像、启动镜像就可以了。</p>
+<p>docker 可以理解为软件安装包。</p>
+<p>Docker 安装：<a href="https://www.docker.com/get-started/">https://www.docker.com/get-started/</a> 或者宝塔安装</p>
+<p>Dockerfile 用于指定构建 Docker 镜像的方法</p>
+<p>Dockerfile 一般情况下不需要完全从 0 自己写，建议去 github、gitee 等托管平台参考同类项目（比如 springboot）</p>
+<p>Dockerfile 编写：</p>
+<ul>
+<li>FROM 依赖的基础镜像</li>
+<li>WORKDIR 工作目录</li>
+<li>COPY 从本机复制文件</li>
+<li>RUN 执行命令</li>
+<li>CMD &#x2F; ENTRYPOINT（附加额外参数）指定运行容器时默认执行的命令</li>
+</ul>
+<p>根据 Dockerfile 构建镜像：</p>
+<p><strong>一定要进入到对应的目录</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 前端</span></span><br><span class="line">docker build -t user-center-frontend:v0.0.1 .</span><br><span class="line"><span class="comment"># 后端</span></span><br><span class="line">docker build -t user-center-backend:v0.0.1 .</span><br></pre></td></tr></table></figure>
+
+<p>Docker 构建优化：减少尺寸、减少构建时间（比如多阶段构建，可以丢弃之前阶段不需要的内容）</p>
+<ul>
+<li><strong>-d:</strong> 后台运行容器，并返回容器ID；</li>
+<li><strong>-p:</strong> 指定端口映射，格式为：<strong>主机(宿主)端口:容器端口</strong></li>
+</ul>
+<p>docker run 启动：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 前端</span></span><br><span class="line">docker run -p 80:80 -d user-center-frontend:v0.0.1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后端</span></span><br><span class="line">docker run -p 8080:8080 user-center-backend:v0.0.1</span><br></pre></td></tr></table></figure>
+
+<p>虚拟化</p>
+<ol>
+<li>端口映射：把本机的资源（实际访问地址）和容器内部的资源（应用启动端口）进行关联</li>
+<li>目录映射：把本机的端口和容器应用的端口进行关联</li>
+</ol>
+<p>进入容器：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -i -t  fee2bbb7c9ee /bin/bash</span><br><span class="line"><span class="comment"># fee2bbb7c9ee 为容器 Id，docker ps 进行查询 id </span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>查看进程：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker ps </span><br></pre></td></tr></table></figure>
+
+
+
+<p>查看日志：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker logs -f [container-id]</span><br><span class="line"><span class="comment"># 添加 -f 跟踪日志输出</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>杀死容器：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker <span class="built_in">kill</span> </span><br><span class="line"><span class="comment"># docker kill abf5c6ebe2fe</span></span><br><span class="line"><span class="comment"># 指定镜像 Id </span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>强制删除镜像：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker rmi -f </span><br><span class="line"><span class="comment"># docker rmi -f repository 名称</span></span><br><span class="line"><span class="comment"># -f 为强制删除</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Docker-平台部署"><a href="#Docker-平台部署" class="headerlink" title="Docker 平台部署"></a>Docker 平台部署</h3><ol>
+<li>云服务商的容器平台（腾讯云、阿里云）</li>
+<li>面向某个领域的容器平台（前端 &#x2F; 后端微信云托管）<strong>要花钱！</strong></li>
+</ol>
+<p>容器平台的好处：</p>
+<ol>
+<li>不用输命令来操作，更方便省事</li>
+<li>不用在控制台操作，更傻瓜式、更简单</li>
+<li>大厂运维，比自己运维更省心</li>
+<li>额外的能力，比如监控、告警、其他（存储、负载均衡、自动扩缩容、流水线）</li>
+</ol>
+<h2 id="绑定域名"><a href="#绑定域名" class="headerlink" title="绑定域名"></a>绑定域名</h2><p>用户中心（上线）1.mp4  时间：01:05:00</p>
+<p>前端项目访问流程：用户输入网址 &#x3D;&gt; 域名解析服务器（把网址解析为 ip 地址 &#x2F; 交给其他的域名解析服务） &#x3D;&gt; 服务器 &#x3D;&gt;（防火墙）&#x3D;&gt; nginx 接收请求，找到对应的文件，返回文件给前端 &#x3D;&gt; 前端加载文件到浏览器中（js、css） &#x3D;&gt; 渲染页面</p>
+<p>后端项目访问流程：用户输入网址 &#x3D;&gt; 域名解析服务器 &#x3D;&gt; 服务器 &#x3D;&gt; nginx 接收请求 &#x3D;&gt; 后端项目（比如 8080端口）</p>
+<p>nginx 反向代理的作用：替服务器接收请求，转发请求</p>
+<h2 id="跨域问题解决"><a href="#跨域问题解决" class="headerlink" title="跨域问题解决"></a>跨域问题解决</h2><p>浏览器为了用户的安全，仅允许向 <strong>同域名、同端口</strong> 的服务器发送请求。</p>
+<p>如何解决跨域？</p>
+<p>最直接的方式：把域名、端口改成相同的</p>
+<h3 id="添加跨域头"><a href="#添加跨域头" class="headerlink" title="添加跨域头"></a>添加跨域头</h3><p>让服务器告诉浏览器：允许跨域（返回 cross-origin-allow 响应头）</p>
+<h4 id="1-网关支持（Nginx）"><a href="#1-网关支持（Nginx）" class="headerlink" title="1. 网关支持（Nginx）"></a>1. 网关支持（Nginx）</h4><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 跨域配置</span></span><br><span class="line"><span class="section">location</span><span class="regexp"> ^~</span> /api/ &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://127.0.0.1:8080/api/;</span><br><span class="line">    <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span> <span class="variable">$http_origin</span>;</span><br><span class="line">    <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Credentials&#x27;</span> <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">    <span class="attribute">add_header</span> Access-Control-Allow-Methods <span class="string">&#x27;GET, POST, OPTIONS&#x27;</span>;</span><br><span class="line">    <span class="attribute">add_header</span> Access-Control-Allow-Headers <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">    <span class="attribute">if</span> (<span class="variable">$request_method</span> = <span class="string">&#x27;OPTIONS&#x27;</span>) &#123;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Credentials&#x27;</span> <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span> <span class="variable">$http_origin</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Methods&#x27;</span> <span class="string">&#x27;GET, POST, OPTIONS&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Headers&#x27;</span> <span class="string">&#x27;DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Max-Age&#x27;</span> <span class="number">1728000</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Content-Type&#x27;</span> <span class="string">&#x27;text/plain; charset=utf-8&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Content-Length&#x27;</span> <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">return</span> <span class="number">204</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-修改后端服务–用户中心上线（2）-00-32-00"><a href="#2-修改后端服务–用户中心上线（2）-00-32-00" class="headerlink" title="2. 修改后端服务–用户中心上线（2） 00:32:00"></a>2. 修改后端服务–用户中心上线（2） 00:32:00</h4><ol>
+<li><p>配置 @CrossOrigin 注解</p>
+</li>
+<li><p>添加 web 全局请求拦截器</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebMvcConfg</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addCorsMappings</span><span class="params">(CorsRegistry registry)</span> &#123;</span><br><span class="line">        <span class="comment">//设置允许跨域的路径</span></span><br><span class="line">        registry.addMapping(<span class="string">&quot;/**&quot;</span>)</span><br><span class="line">                <span class="comment">//设置允许跨域请求的域名</span></span><br><span class="line">                <span class="comment">//当**Credentials为true时，**Origin不能为星号，需为具体的ip地址【如果接口不带cookie,ip无需设成具体ip】</span></span><br><span class="line">                .allowedOrigins(<span class="string">&quot;http://localhost:9527&quot;</span>, <span class="string">&quot;http://127.0.0.1:9527&quot;</span>, <span class="string">&quot;http://127.0.0.1:8082&quot;</span>, <span class="string">&quot;http://127.0.0.1:8083&quot;</span>)</span><br><span class="line">                <span class="comment">//是否允许证书 不再默认开启</span></span><br><span class="line">                .allowCredentials(<span class="literal">true</span>)</span><br><span class="line">                <span class="comment">//设置允许的方法</span></span><br><span class="line">                .allowedMethods(<span class="string">&quot;*&quot;</span>)</span><br><span class="line">                <span class="comment">//跨域允许时间</span></span><br><span class="line">                .maxAge(<span class="number">3600</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>定义新的 corsFilter Bean，参考：<a href="https://www.jianshu.com/p/b02099a435bd">https://www.jianshu.com/p/b02099a435bd</a></p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>项目部署上线</category>
+      </categories>
+      <tags>
+        <tag>项目上线</tag>
+        <tag>Docker</tag>
+        <tag>绑定域名</tag>
+      </tags>
+  </entry>
 </search>

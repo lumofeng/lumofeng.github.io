@@ -1,0 +1,360 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>项目部署上线（用户中心示例） | Hexo</title><meta name="author" content="墨枫"><meta name="copyright" content="墨枫"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="项目部署上线-用户中心示例多环境参考文章：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_41701290&#x2F;article&#x2F;details&#x2F;120173283 本地开发：localhost（127.0.0.1） 多环境：指同一套项目代码在不同的阶段需要根据实际情况来调整配置并且部署到不同的机器上。 为什么需要？  每个环境互不影响 区分不同的阶段：开发 &#x2F; 测试 &#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="项目部署上线（用户中心示例）">
+<meta property="og:url" content="http://example.com/2022/12/04/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="项目部署上线-用户中心示例多环境参考文章：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_41701290&#x2F;article&#x2F;details&#x2F;120173283 本地开发：localhost（127.0.0.1） 多环境：指同一套项目代码在不同的阶段需要根据实际情况来调整配置并且部署到不同的机器上。 为什么需要？  每个环境互不影响 区分不同的阶段：开发 &#x2F; 测试 &#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-12-04T05:11:58.271Z">
+<meta property="article:modified_time" content="2022-12-04T05:11:36.771Z">
+<meta property="article:author" content="墨枫">
+<meta property="article:tag" content="项目上线">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="绑定域名">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/12/04/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '项目部署上线（用户中心示例）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-12-04 13:11:36'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/ahzoo.css"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Hexo</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">项目部署上线（用户中心示例）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-04T05:11:58.271Z" title="发表于 2022-12-04 13:11:58">2022-12-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-12-04T05:11:36.771Z" title="更新于 2022-12-04 13:11:36">2022-12-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF/">项目部署上线</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="项目部署上线（用户中心示例）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="项目部署上线-用户中心示例"><a href="#项目部署上线-用户中心示例" class="headerlink" title="项目部署上线-用户中心示例"></a>项目部署上线-用户中心示例</h1><h2 id="多环境"><a href="#多环境" class="headerlink" title="多环境"></a>多环境</h2><p>参考文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41701290/article/details/120173283">https://blog.csdn.net/weixin_41701290/article/details/120173283</a></p>
+<p>本地开发：localhost（127.0.0.1）</p>
+<p>多环境：指同一套项目代码在不同的阶段需要根据实际情况来调整配置并且部署到不同的机器上。</p>
+<p>为什么需要？</p>
+<ol>
+<li>每个环境互不影响</li>
+<li>区分不同的阶段：开发 &#x2F; 测试 &#x2F; 生产</li>
+<li>对项目进行优化：<ol>
+<li>本地日志级别</li>
+<li>精简依赖，节省项目体积</li>
+<li>项目的环境 &#x2F; 参数可以调整，比如 JVM 参数</li>
+</ol>
+</li>
+</ol>
+<p>针对不同环境做不同的事情。</p>
+<p>多环境分类：</p>
+<ol>
+<li>本地环境（自己的电脑）localhost</li>
+<li>开发环境（远程开发）大家连同一台机器，为了大家开发方便</li>
+<li>测试环境（测试）开发 &#x2F; 测试 &#x2F; 产品，单元测试 &#x2F; 性能测试 &#x2F; 功能测试 &#x2F; 系统集成测试，独立的数据库、独立的服务器</li>
+<li>预发布环境（体验服）：和正式环境一致，正式数据库，更严谨，查出更多问题</li>
+<li>正式环境（线上，公开对外访问的项目）：尽量不要改动，保证上线前的代码是 “完美” 运行</li>
+<li>沙箱环境（实验环境）：为了做实验</li>
+</ol>
+<h3 id="前端多环境实战"><a href="#前端多环境实战" class="headerlink" title="前端多环境实战"></a>前端多环境实战</h3><ul>
+<li><p>请求地址</p>
+<ul>
+<li><p>开发环境：localhost:8000</p>
+</li>
+<li><p>线上环境：user-backend.code-nav.cn</p>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">startFront</span>(<span class="params">env</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(env === <span class="string">&#x27;prod&#x27;</span>) &#123;</span><br><span class="line">        <span class="comment">// 不输出注释 </span></span><br><span class="line">        <span class="comment">// 项目优化</span></span><br><span class="line">        <span class="comment">// 修改请求地址</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 保持本地开发逻辑</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用了 umi 框架，build 时会自动传入 NODE_ENV &#x3D;&#x3D; production 参数，start NODE_ENV 参数为 development</p>
+</li>
+<li><p>启动方式</p>
+<ul>
+<li>开发环境：npm run start（本地启动，监听端口、自动更新）</li>
+<li>线上环境：npm run build（项目构建打包），可以使用 serve 工具启动（npm i -g serve）</li>
+</ul>
+</li>
+<li><p>项目的配置</p>
+<p>不同的项目（框架）都有不同的配置文件，umi 的配置文件是 config，可以在配置文件后添加对应的环境名称后缀来区分开发环境和生产环境。参考文档：<a target="_blank" rel="noopener" href="https://umijs.org/zh-CN/docs/deployment">https://umijs.org/zh-CN/docs/deployment</a></p>
+<ul>
+<li>开发环境：config.dev.ts</li>
+<li>生产环境：config.prod.ts</li>
+<li>公共配置：config.ts 不带后缀</li>
+</ul>
+</li>
+</ul>
+<h3 id="后端多环境实战"><a href="#后端多环境实战" class="headerlink" title="后端多环境实战"></a>后端多环境实战</h3><p>SpringBoot 项目，通过 application.yml 添加不同的后缀来区分配置文件</p>
+<p>可以在启动项目时传入环境变量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar .\user-center-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod</span><br></pre></td></tr></table></figure>
+
+<p>主要是改：</p>
+<ul>
+<li><p>依赖的环境地址</p>
+<ul>
+<li><p>数据库地址</p>
+</li>
+<li><p>缓存地址</p>
+</li>
+<li><p>消息队列地址</p>
+</li>
+<li><p>项目端口号</p>
+</li>
+</ul>
+</li>
+<li><p>服务器配置</p>
+</li>
+</ul>
+<h2 id="项目部署"><a href="#项目部署" class="headerlink" title="项目部署"></a>项目部署</h2><p>参考文章：<a target="_blank" rel="noopener" href="https://www.bilibili.com/read/cv16179200">https://www.bilibili.com/read/cv16179200</a></p>
+<p>需要 Linux 服务器（建议大家用 CentOS 8+ &#x2F; 7.6 以上）</p>
+<h3 id="原始部署"><a href="#原始部署" class="headerlink" title="原始部署"></a>原始部署</h3><p>什么都自己装</p>
+<h4 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h4><p>需要 web 服务器：<strong>nginx</strong> 、apache、tomcat</p>
+<p>安装 nginx 服务器：</p>
+<ol>
+<li><p>用系统自带的软件包管理器快速安装，比如 centos 的 yum</p>
+</li>
+<li><p>自己到官网安装（参考文章）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">curl -o nginx-1.21.6.tar.gz http://nginx.org/download/nginx-1.21.6.tar.gz</span><br><span class="line"></span><br><span class="line">tar -zxvf nginx-1.21.6.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> nginx-1.21.6</span><br><span class="line"></span><br><span class="line">   37  2022-04-17 23:30:09 yum install pcre pcre-devel -y</span><br><span class="line">   39  2022-04-17 23:30:59 yum install openssl openssl-devel -y</span><br><span class="line">   41  2022-04-17 23:31:57 ./configure --with-http_ssl_module --with-http_v2_module --with-stream</span><br><span class="line">   42  2022-04-17 23:32:13 make</span><br><span class="line">   43  2022-04-17 23:32:54 make install</span><br><span class="line">   48  2022-04-17 23:33:40 <span class="built_in">ls</span> /usr/local/nginx/sbin/nginx</span><br><span class="line">   vim /etc/profile</span><br><span class="line">  在最后一行添加：<span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/local/nginx/sbin	</span><br><span class="line">  </span><br><span class="line">  nginx</span><br><span class="line">  </span><br><span class="line">  netstat -ntlp 查看启动情况</span><br></pre></td></tr></table></figure>
+
+<p>注意 nginx 权限</p>
+</li>
+</ol>
+<h4 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h4><p>java、maven</p>
+<p>安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">yum install -y java-1.8.0-openjdk*</span><br><span class="line"></span><br><span class="line">curl -o apache-maven-3.8.5-bin.tar.gz https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz</span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> xxx 下载代码</span><br><span class="line"></span><br><span class="line">打包构建，跳过测试</span><br><span class="line">mvn package -DskipTests</span><br><span class="line"></span><br><span class="line">java -jar ./user-center-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="宝塔-Linux-部署"><a href="#宝塔-Linux-部署" class="headerlink" title="宝塔 Linux 部署"></a>宝塔 Linux 部署</h3><p>Linux 运维面板</p>
+<p>官方安装教程：<a target="_blank" rel="noopener" href="https://www.bt.cn/new/download.html">https://www.bt.cn/new/download.html</a></p>
+<p>方便管理服务器、方便安装软件</p>
+<h3 id="前端托管"><a href="#前端托管" class="headerlink" title="前端托管"></a>前端托管</h3><p>前端腾讯云 web 应用托管（比容器化更傻瓜式，不需要自己写构建应用的命令，就能启动前端项目）</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://console.cloud.tencent.com/webify/new">https://console.cloud.tencent.com/webify/new</a></p>
+</blockquote>
+<ul>
+<li>小缺点：需要将代码放到代码托管平台上</li>
+<li>优势：不用写命令、代码更新时自动构建</li>
+</ul>
+<h3 id="Docker-部署"><a href="#Docker-部署" class="headerlink" title="Docker 部署"></a>Docker 部署</h3><p>docker 是容器，可以将项目的环境（比如 java、nginx）和项目的代码一起打包成镜像，所有同学都能下载镜像，更容易分发和移植。</p>
+<p>再启动项目时，不需要敲一大堆命令，而是直接下载镜像、启动镜像就可以了。</p>
+<p>docker 可以理解为软件安装包。</p>
+<p>Docker 安装：<a target="_blank" rel="noopener" href="https://www.docker.com/get-started/">https://www.docker.com/get-started/</a> 或者宝塔安装</p>
+<p>Dockerfile 用于指定构建 Docker 镜像的方法</p>
+<p>Dockerfile 一般情况下不需要完全从 0 自己写，建议去 github、gitee 等托管平台参考同类项目（比如 springboot）</p>
+<p>Dockerfile 编写：</p>
+<ul>
+<li>FROM 依赖的基础镜像</li>
+<li>WORKDIR 工作目录</li>
+<li>COPY 从本机复制文件</li>
+<li>RUN 执行命令</li>
+<li>CMD &#x2F; ENTRYPOINT（附加额外参数）指定运行容器时默认执行的命令</li>
+</ul>
+<p>根据 Dockerfile 构建镜像：</p>
+<p><strong>一定要进入到对应的目录</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 前端</span></span><br><span class="line">docker build -t user-center-frontend:v0.0.1 .</span><br><span class="line"><span class="comment"># 后端</span></span><br><span class="line">docker build -t user-center-backend:v0.0.1 .</span><br></pre></td></tr></table></figure>
+
+<p>Docker 构建优化：减少尺寸、减少构建时间（比如多阶段构建，可以丢弃之前阶段不需要的内容）</p>
+<ul>
+<li><strong>-d:</strong> 后台运行容器，并返回容器ID；</li>
+<li><strong>-p:</strong> 指定端口映射，格式为：<strong>主机(宿主)端口:容器端口</strong></li>
+</ul>
+<p>docker run 启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 前端</span></span><br><span class="line">docker run -p 80:80 -d user-center-frontend:v0.0.1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 后端</span></span><br><span class="line">docker run -p 8080:8080 user-center-backend:v0.0.1</span><br></pre></td></tr></table></figure>
+
+<p>虚拟化</p>
+<ol>
+<li>端口映射：把本机的资源（实际访问地址）和容器内部的资源（应用启动端口）进行关联</li>
+<li>目录映射：把本机的端口和容器应用的端口进行关联</li>
+</ol>
+<p>进入容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -i -t  fee2bbb7c9ee /bin/bash</span><br><span class="line"><span class="comment"># fee2bbb7c9ee 为容器 Id，docker ps 进行查询 id </span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>查看进程：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker ps </span><br></pre></td></tr></table></figure>
+
+
+
+<p>查看日志：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker logs -f [container-id]</span><br><span class="line"><span class="comment"># 添加 -f 跟踪日志输出</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>杀死容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">kill</span> </span><br><span class="line"><span class="comment"># docker kill abf5c6ebe2fe</span></span><br><span class="line"><span class="comment"># 指定镜像 Id </span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>强制删除镜像：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker rmi -f </span><br><span class="line"><span class="comment"># docker rmi -f repository 名称</span></span><br><span class="line"><span class="comment"># -f 为强制删除</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Docker-平台部署"><a href="#Docker-平台部署" class="headerlink" title="Docker 平台部署"></a>Docker 平台部署</h3><ol>
+<li>云服务商的容器平台（腾讯云、阿里云）</li>
+<li>面向某个领域的容器平台（前端 &#x2F; 后端微信云托管）<strong>要花钱！</strong></li>
+</ol>
+<p>容器平台的好处：</p>
+<ol>
+<li>不用输命令来操作，更方便省事</li>
+<li>不用在控制台操作，更傻瓜式、更简单</li>
+<li>大厂运维，比自己运维更省心</li>
+<li>额外的能力，比如监控、告警、其他（存储、负载均衡、自动扩缩容、流水线）</li>
+</ol>
+<h2 id="绑定域名"><a href="#绑定域名" class="headerlink" title="绑定域名"></a>绑定域名</h2><p>用户中心（上线）1.mp4  时间：01:05:00</p>
+<p>前端项目访问流程：用户输入网址 &#x3D;&gt; 域名解析服务器（把网址解析为 ip 地址 &#x2F; 交给其他的域名解析服务） &#x3D;&gt; 服务器 &#x3D;&gt;（防火墙）&#x3D;&gt; nginx 接收请求，找到对应的文件，返回文件给前端 &#x3D;&gt; 前端加载文件到浏览器中（js、css） &#x3D;&gt; 渲染页面</p>
+<p>后端项目访问流程：用户输入网址 &#x3D;&gt; 域名解析服务器 &#x3D;&gt; 服务器 &#x3D;&gt; nginx 接收请求 &#x3D;&gt; 后端项目（比如 8080端口）</p>
+<p>nginx 反向代理的作用：替服务器接收请求，转发请求</p>
+<h2 id="跨域问题解决"><a href="#跨域问题解决" class="headerlink" title="跨域问题解决"></a>跨域问题解决</h2><p>浏览器为了用户的安全，仅允许向 <strong>同域名、同端口</strong> 的服务器发送请求。</p>
+<p>如何解决跨域？</p>
+<p>最直接的方式：把域名、端口改成相同的</p>
+<h3 id="添加跨域头"><a href="#添加跨域头" class="headerlink" title="添加跨域头"></a>添加跨域头</h3><p>让服务器告诉浏览器：允许跨域（返回 cross-origin-allow 响应头）</p>
+<h4 id="1-网关支持（Nginx）"><a href="#1-网关支持（Nginx）" class="headerlink" title="1. 网关支持（Nginx）"></a>1. 网关支持（Nginx）</h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 跨域配置</span></span><br><span class="line"><span class="section">location</span><span class="regexp"> ^~</span> /api/ &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://127.0.0.1:8080/api/;</span><br><span class="line">    <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span> <span class="variable">$http_origin</span>;</span><br><span class="line">    <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Credentials&#x27;</span> <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">    <span class="attribute">add_header</span> Access-Control-Allow-Methods <span class="string">&#x27;GET, POST, OPTIONS&#x27;</span>;</span><br><span class="line">    <span class="attribute">add_header</span> Access-Control-Allow-Headers <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">    <span class="attribute">if</span> (<span class="variable">$request_method</span> = <span class="string">&#x27;OPTIONS&#x27;</span>) &#123;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Credentials&#x27;</span> <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span> <span class="variable">$http_origin</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Methods&#x27;</span> <span class="string">&#x27;GET, POST, OPTIONS&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Allow-Headers&#x27;</span> <span class="string">&#x27;DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Access-Control-Max-Age&#x27;</span> <span class="number">1728000</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Content-Type&#x27;</span> <span class="string">&#x27;text/plain; charset=utf-8&#x27;</span>;</span><br><span class="line">        <span class="attribute">add_header</span> <span class="string">&#x27;Content-Length&#x27;</span> <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">return</span> <span class="number">204</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-修改后端服务–用户中心上线（2）-00-32-00"><a href="#2-修改后端服务–用户中心上线（2）-00-32-00" class="headerlink" title="2. 修改后端服务–用户中心上线（2） 00:32:00"></a>2. 修改后端服务–用户中心上线（2） 00:32:00</h4><ol>
+<li><p>配置 @CrossOrigin 注解</p>
+</li>
+<li><p>添加 web 全局请求拦截器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WebMvcConfg</span> <span class="keyword">implements</span> <span class="title class_">WebMvcConfigurer</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addCorsMappings</span><span class="params">(CorsRegistry registry)</span> &#123;</span><br><span class="line">        <span class="comment">//设置允许跨域的路径</span></span><br><span class="line">        registry.addMapping(<span class="string">&quot;/**&quot;</span>)</span><br><span class="line">                <span class="comment">//设置允许跨域请求的域名</span></span><br><span class="line">                <span class="comment">//当**Credentials为true时，**Origin不能为星号，需为具体的ip地址【如果接口不带cookie,ip无需设成具体ip】</span></span><br><span class="line">                .allowedOrigins(<span class="string">&quot;http://localhost:9527&quot;</span>, <span class="string">&quot;http://127.0.0.1:9527&quot;</span>, <span class="string">&quot;http://127.0.0.1:8082&quot;</span>, <span class="string">&quot;http://127.0.0.1:8083&quot;</span>)</span><br><span class="line">                <span class="comment">//是否允许证书 不再默认开启</span></span><br><span class="line">                .allowCredentials(<span class="literal">true</span>)</span><br><span class="line">                <span class="comment">//设置允许的方法</span></span><br><span class="line">                .allowedMethods(<span class="string">&quot;*&quot;</span>)</span><br><span class="line">                <span class="comment">//跨域允许时间</span></span><br><span class="line">                .maxAge(<span class="number">3600</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>定义新的 corsFilter Bean，参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b02099a435bd">https://www.jianshu.com/p/b02099a435bd</a></p>
+</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">墨枫</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/12/04/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B/">http://example.com/2022/12/04/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">Hexo</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%BA%BF/">项目上线</a><a class="post-meta__tags" href="/tags/Docker/">Docker</a><a class="post-meta__tags" href="/tags/%E7%BB%91%E5%AE%9A%E5%9F%9F%E5%90%8D/">绑定域名</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/12/04/%E4%BD%BF%E7%94%A8%20Git%20%E4%B8%8A%E4%BC%A0%E9%A1%B9%E7%9B%AE/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">使用 Git 上传项目</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">墨枫</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.</span> <span class="toc-text">项目部署上线-用户中心示例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%8E%AF%E5%A2%83"><span class="toc-number">1.1.</span> <span class="toc-text">多环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF%E5%A4%9A%E7%8E%AF%E5%A2%83%E5%AE%9E%E6%88%98"><span class="toc-number">1.1.1.</span> <span class="toc-text">前端多环境实战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8E%E7%AB%AF%E5%A4%9A%E7%8E%AF%E5%A2%83%E5%AE%9E%E6%88%98"><span class="toc-number">1.1.2.</span> <span class="toc-text">后端多环境实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2"><span class="toc-number">1.2.</span> <span class="toc-text">项目部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%A7%8B%E9%83%A8%E7%BD%B2"><span class="toc-number">1.2.1.</span> <span class="toc-text">原始部署</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">前端</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8E%E7%AB%AF"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">后端</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9D%E5%A1%94-Linux-%E9%83%A8%E7%BD%B2"><span class="toc-number">1.2.2.</span> <span class="toc-text">宝塔 Linux 部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AF%E6%89%98%E7%AE%A1"><span class="toc-number">1.2.3.</span> <span class="toc-text">前端托管</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker-%E9%83%A8%E7%BD%B2"><span class="toc-number">1.2.4.</span> <span class="toc-text">Docker 部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker-%E5%B9%B3%E5%8F%B0%E9%83%A8%E7%BD%B2"><span class="toc-number">1.2.5.</span> <span class="toc-text">Docker 平台部署</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%91%E5%AE%9A%E5%9F%9F%E5%90%8D"><span class="toc-number">1.3.</span> <span class="toc-text">绑定域名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">1.4.</span> <span class="toc-text">跨域问题解决</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E8%B7%A8%E5%9F%9F%E5%A4%B4"><span class="toc-number">1.4.1.</span> <span class="toc-text">添加跨域头</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%BD%91%E5%85%B3%E6%94%AF%E6%8C%81%EF%BC%88Nginx%EF%BC%89"><span class="toc-number">1.4.1.1.</span> <span class="toc-text">1. 网关支持（Nginx）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1%E2%80%93%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E4%B8%8A%E7%BA%BF%EF%BC%882%EF%BC%89-00-32-00"><span class="toc-number">1.4.1.2.</span> <span class="toc-text">2. 修改后端服务–用户中心上线（2） 00:32:00</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/12/04/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B/" title="项目部署上线（用户中心示例）"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="项目部署上线（用户中心示例）"/></a><div class="content"><a class="title" href="/2022/12/04/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E4%B8%8A%E7%BA%BF-%E7%94%A8%E6%88%B7%E4%B8%AD%E5%BF%83%E7%A4%BA%E4%BE%8B/" title="项目部署上线（用户中心示例）">项目部署上线（用户中心示例）</a><time datetime="2022-12-04T05:11:58.271Z" title="发表于 2022-12-04 13:11:58">2022-12-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/04/%E4%BD%BF%E7%94%A8%20Git%20%E4%B8%8A%E4%BC%A0%E9%A1%B9%E7%9B%AE/" title="使用 Git 上传项目"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="使用 Git 上传项目"/></a><div class="content"><a class="title" href="/2022/12/04/%E4%BD%BF%E7%94%A8%20Git%20%E4%B8%8A%E4%BC%A0%E9%A1%B9%E7%9B%AE/" title="使用 Git 上传项目">使用 Git 上传项目</a><time datetime="2022-12-04T05:06:28.740Z" title="发表于 2022-12-04 13:06:28">2022-12-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/03/%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E4%B8%83%E7%A7%8D%E6%83%85%E5%86%B5/" title="索引失效的几种情况"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="索引失效的几种情况"/></a><div class="content"><a class="title" href="/2022/12/03/%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E4%B8%83%E7%A7%8D%E6%83%85%E5%86%B5/" title="索引失效的几种情况">索引失效的几种情况</a><time datetime="2022-12-03T14:48:51.342Z" title="发表于 2022-12-03 22:48:51">2022-12-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/03/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80/" title="数据库基础"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据库基础"/></a><div class="content"><a class="title" href="/2022/12/03/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80/" title="数据库基础">数据库基础</a><time datetime="2022-12-03T14:48:51.339Z" title="发表于 2022-12-03 22:48:51">2022-12-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/03/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E4%B9%90%E8%A7%82%E9%94%81%E5%92%8C%E6%82%B2%E8%A7%82%E9%94%81%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/" title="如何实现乐观锁和悲观锁？"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="如何实现乐观锁和悲观锁？"/></a><div class="content"><a class="title" href="/2022/12/03/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E4%B9%90%E8%A7%82%E9%94%81%E5%92%8C%E6%82%B2%E8%A7%82%E9%94%81%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/" title="如何实现乐观锁和悲观锁？">如何实现乐观锁和悲观锁？</a><time datetime="2022-12-03T14:48:51.337Z" title="发表于 2022-12-03 22:48:51">2022-12-03</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By 墨枫</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'nvHykKxDkmmX1stydcNy3Um7-gzGzoHsz',
+      appKey: 'Lbv3XcuwZgrp23TElZVj0efL',
+      avatar: 'monsterid',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !true) {
+  if (true) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
