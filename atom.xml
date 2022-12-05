@@ -51,7 +51,7 @@
     <published>2022-12-04T05:06:28.740Z</published>
     <updated>2022-12-04T05:06:13.089Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="上传项目到GitHub"><a href="#上传项目到GitHub" class="headerlink" title="上传项目到GitHub"></a>上传项目到GitHub</h1><ol><li>全局绑定账户</li></ol><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 绑定用户</span><br><span class="line">git config --global user.name <span class="string">&quot; &quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure><p>2.进到本地项目目录</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br><span class="line">git add .</span><br><span class="line">git coommit - m &quot;第一次上传&quot;</span><br></pre></td></tr></table></figure><p>已将本地仓库建立好</p><p>3.关联 GitHub 仓库 (示例宠物医院管理系统仓库地址)</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 关联 GitHub 仓库地址</span><br><span class="line">git remote add origin git@github.com:xxxx.git</span><br><span class="line"># 上传本地代码 使用 origin 来指定上传的分支</span><br><span class="line">git push -u origin master</span><br></pre></td></tr></table></figure><p>git remote add origin <a href="mailto:&#x67;&#105;&#116;&#x40;&#103;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#x6f;&#109;">&#x67;&#105;&#116;&#x40;&#103;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#x6f;&#109;</a>:lubenchu&#x2F;PetHospitalManagementSystem.git 报错解决</p><p>查看当前关联的仓库：git remote -v </p><p>解除当前关联仓库：git remote rm origin </p>]]></content>
+    <content type="html"><![CDATA[<h1 id="上传项目到GitHub"><a href="#上传项目到GitHub" class="headerlink" title="上传项目到GitHub"></a>上传项目到GitHub</h1><ol><li>全局绑定账户</li></ol><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 绑定用户</span><br><span class="line">git config --global user.name <span class="string">&quot; &quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure><p>2.进到本地项目目录</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br><span class="line">git add .</span><br><span class="line">git coommit - m &quot;第一次上传&quot;</span><br></pre></td></tr></table></figure><p>已将本地仓库建立好</p><p>3.关联 GitHub 仓库 (示例宠物医院管理系统仓库地址)</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 关联 GitHub 仓库地址</span><br><span class="line">git remote add origin git@github.com:xxxx.git</span><br><span class="line"># 上传本地代码 使用 origin 来指定上传的分支</span><br><span class="line">git push -u origin master</span><br></pre></td></tr></table></figure><p>git remote add origin <a href="mailto:&#103;&#105;&#x74;&#64;&#103;&#105;&#x74;&#104;&#117;&#x62;&#46;&#x63;&#x6f;&#x6d;">&#103;&#105;&#x74;&#64;&#103;&#105;&#x74;&#104;&#117;&#x62;&#46;&#x63;&#x6f;&#x6d;</a>:lubenchu&#x2F;PetHospitalManagementSystem.git 报错解决</p><p>查看当前关联的仓库：git remote -v </p><p>解除当前关联仓库：git remote rm origin </p>]]></content>
     
     
       
@@ -116,9 +116,9 @@
     <category term="数据库" scheme="http://example.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
     
-    <category term="数据库基础" scheme="http://example.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/"/>
-    
     <category term="索引" scheme="http://example.com/tags/%E7%B4%A2%E5%BC%95/"/>
+    
+    <category term="数据库基础" scheme="http://example.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%9F%BA%E7%A1%80/"/>
     
   </entry>
   
@@ -241,11 +241,11 @@
     <category term="数据库" scheme="http://example.com/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
     
     
-    <category term="索引" scheme="http://example.com/tags/%E7%B4%A2%E5%BC%95/"/>
-    
     <category term="SQL优化" scheme="http://example.com/tags/SQL%E4%BC%98%E5%8C%96/"/>
     
     <category term="数据库优化" scheme="http://example.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96/"/>
+    
+    <category term="索引" scheme="http://example.com/tags/%E7%B4%A2%E5%BC%95/"/>
     
     <category term="事务" scheme="http://example.com/tags/%E4%BA%8B%E5%8A%A1/"/>
     
