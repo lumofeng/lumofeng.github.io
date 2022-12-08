@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2022/12/08/%E7%AC%AC%E4%B8%83%E9%9B%86-Redis%20%E7%BC%93%E5%AD%98%E5%AE%9E%E7%8E%B0-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/</loc>
+    
+    <lastmod>2022-12-08</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/2022/12/03/%E4%BD%BF%E7%94%A8PreparedStatement%E9%98%B2%E6%AD%A2SQL%E6%B3%A8%E5%85%A5/</loc>
+    
+    <lastmod>2022-12-08</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://example.com/2022/12/03/SQL%20%E6%B3%A8%E5%85%A5/</loc>
     
     <lastmod>2022-12-08</lastmod>
@@ -209,15 +227,6 @@
   </url>
   
   <url>
-    <loc>http://example.com/2022/12/03/%E4%BD%BF%E7%94%A8PreparedStatement%E9%98%B2%E6%AD%A2SQL%E6%B3%A8%E5%85%A5/</loc>
-    
-    <lastmod>2022-12-03</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://example.com/tags/index.html</loc>
     
     <lastmod>2022-12-03</lastmod>
@@ -244,15 +253,6 @@
     <priority>0.6</priority>
   </url>
   
-  <url>
-    <loc>http://example.com/2022/12/08/%E7%AC%AC%E4%B8%83%E9%9B%86-Redis%20%E7%BC%93%E5%AD%98%E5%AE%9E%E7%8E%B0-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/</loc>
-    
-    <lastmod>2022-11-09</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
 
   <url>
     <loc>http://example.com/</loc>
@@ -261,13 +261,6 @@
     <priority>1.0</priority>
   </url>
 
-  
-  <url>
-    <loc>http://example.com/tags/SQL-%E6%B3%A8%E5%85%A5/</loc>
-    <lastmod>2022-12-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
   
   <url>
     <loc>http://example.com/tags/GitHub/</loc>
@@ -427,6 +420,13 @@
   
   <url>
     <loc>http://example.com/categories/%E4%BC%99%E4%BC%B4%E5%8C%B9%E9%85%8D%E7%B3%BB%E7%BB%9F/%E6%95%B0%E6%8D%AE%E5%BA%93/</loc>
+    <lastmod>2022-12-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://example.com/categories/%E4%BC%99%E4%BC%B4%E5%8C%B9%E9%85%8D%E7%B3%BB%E7%BB%9F/redis/</loc>
     <lastmod>2022-12-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

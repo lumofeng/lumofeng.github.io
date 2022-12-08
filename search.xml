@@ -195,7 +195,7 @@
         <category>数据库</category>
       </categories>
       <tags>
-        <tag>SQL 注入</tag>
+        <tag>SQL</tag>
       </tags>
   </entry>
   <entry>
@@ -2995,10 +2995,9 @@
       </categories>
   </entry>
   <entry>
-    <title></title>
+    <title>Redis 缓存实现-定时任务</title>
     <url>/2022/12/08/%E7%AC%AC%E4%B8%83%E9%9B%86-Redis%20%E7%BC%93%E5%AD%98%E5%AE%9E%E7%8E%B0-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/</url>
-    <content><![CDATA[<p>[toc]</p>
-<h1 id="第七集-Redis-缓存实现-定时任务"><a href="#第七集-Redis-缓存实现-定时任务" class="headerlink" title="第七集-Redis 缓存实现-定时任务"></a>第七集-Redis 缓存实现-定时任务</h1><p>主要内容（后端）：<br>1.缓存和分布式缓存讲解<br>2.Redis介绍(5种数据结构等)<br>3.Java操作Redis的方法(4种方法+对比分析)<br>4.Java Redis Template序列化（包含源码追踪）<br>5.首页缓存开发与注意事项<br>6.缓存预热设计与实现<br>7.定时任务介绍和实现</p>
+    <content><![CDATA[<h1 id="7、Redis-缓存实现-定时任务"><a href="#7、Redis-缓存实现-定时任务" class="headerlink" title="7、Redis 缓存实现-定时任务"></a>7、Redis 缓存实现-定时任务</h1><p>主要内容（后端）：<br>1.缓存和分布式缓存讲解<br>2.Redis介绍(5种数据结构等)<br>3.Java操作Redis的方法(4种方法+对比分析)<br>4.Java Redis Template序列化（包含源码追踪）<br>5.首页缓存开发与注意事项<br>6.缓存预热设计与实现<br>7.定时任务介绍和实现</p>
 <h2 id="数据查询慢怎么办？"><a href="#数据查询慢怎么办？" class="headerlink" title="数据查询慢怎么办？"></a>数据查询慢怎么办？</h2><ul>
 <li><p>用缓存：提前把数据取出来保存好（通过保存到读写更快的介质，比如内存）</p>
 </li>
@@ -3092,6 +3091,10 @@
 <li>缓存数据的周期（此处为每天）</li>
 </ol>
 ]]></content>
+      <categories>
+        <category>伙伴匹配系统</category>
+        <category>redis</category>
+      </categories>
   </entry>
   <entry>
     <title>组队功能设计</title>
