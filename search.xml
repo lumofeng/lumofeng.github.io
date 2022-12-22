@@ -3195,4 +3195,437 @@
         <category>伙伴匹配系统</category>
       </categories>
   </entry>
+  <entry>
+    <title>GateWay 转发请求</title>
+    <url>/2022/12/22/GateWay-%E8%BD%AC%E5%8F%91%E8%AF%B7%E6%B1%82/</url>
+    <content><![CDATA[<h1 id="五、Gateway-转发请求"><a href="#五、Gateway-转发请求" class="headerlink" title="五、Gateway 转发请求"></a>五、Gateway 转发请求</h1><h2 id="使用到的特性"><a href="#使用到的特性" class="headerlink" title="使用到的特性"></a>使用到的特性</h2><ol>
+<li>路由</li>
+<li><del>负载均衡（需要用到注册中心）</del></li>
+<li>统一鉴权</li>
+<li><del>跨域</del></li>
+<li>统一业务处理（缓存）</li>
+<li>访问控制</li>
+<li><del>发布控制</del></li>
+<li>流量染色</li>
+<li><del>接口保护</del><ol>
+<li>限制请求</li>
+<li>信息脱敏</li>
+<li>降级（熔断）</li>
+<li>限流：学习令牌桶算法、学习漏桶算法，学习一下 RedisLimitHandler</li>
+<li>超时时间</li>
+</ol>
+</li>
+<li>统一日志</li>
+<li><del>统一文档</del></li>
+</ol>
+<h2 id="业务逻辑"><a href="#业务逻辑" class="headerlink" title="业务逻辑"></a>业务逻辑</h2><ol>
+<li>用户发送请求到 API 网关</li>
+<li>请求日志</li>
+<li>（黑白名单）</li>
+<li>用户鉴权（判断 accessKey, secretKey 是否合法）</li>
+<li>请求的模拟接口是否存在</li>
+<li><strong>请求转发，调用模拟接口</strong></li>
+<li>响应日志</li>
+<li>调用成功，次数 + 1</li>
+<li>调用失败，返回一个规范的错误码</li>
+</ol>
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><h3 id="1-请求转发"><a href="#1-请求转发" class="headerlink" title="1.请求转发"></a>1.请求转发</h3><p>使用前缀匹配断言：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-path-route-predicate-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-path-route-predicate-factory</a></p>
+<p>所有路径为： &#x2F;api&#x2F;** 的请求进行转发，转发到 <a href="http://localhost:8123/api/">http://localhost:8123/api/</a>**</p>
+<p>比如请求网关： <a href="http://localhost:8090/api/name/get/?name=mofeng">http://localhost:8090/api/name/get/?name=mofeng</a></p>
+<p>转发到：<a href="http://localhost:8123/api/name/get/?name=mofeng">http://localhost:8123/api/name/get/?name=mofeng</a></p>
+<p>配置文件添加内容， application.yml</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">api_route</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">http://localhost:8123</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/api/**</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-编写业务逻辑"><a href="#2-编写业务逻辑" class="headerlink" title="2.编写业务逻辑"></a>2.编写业务逻辑</h3><p>使用了 GlobalFilter （编程式），全局请求拦截处理（类似 AOP）</p>
+<p>因为网关项目没引入 MyBatis 等操作数据库的类库，如果该操作较为复杂，可以有 backend 增删改查项目提供接口，直接调用，不需要重复写逻辑。</p>
+<ul>
+<li>HTTP 请求（HTTPClient、 用 RestTemplate、 Feign）</li>
+<li>RPC（Dubbo)</li>
+</ul>
+<h3 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h3><p>预期等模拟接口调用完成，才记录响应日志、统计调用次数</p>
+<p>但现实是 chain.filter 方法立即返回了，知道 filter 过滤器 return 后才调用模拟接口</p>
+<p>原因是：chain.filter 是一个异步操作，理解为前端的 promise</p>
+<p>解决方案：利用 response 装饰者，增强原有 response 的处理能力</p>
+<p>参考博客：<a href="https://blog.csdn.net/qq_19636353/article/details/126759522">https://blog.csdn.net/qq_19636353/article/details/126759522</a></p>
+<p>其他参考：</p>
+<p><a href="https://blog.csdn.net/zx156955/article/details/121670681">https://blog.csdn.net/zx156955/article/details/121670681</a></p>
+<p><a href="https://blog.csdn.net/weixin_43933728/article/details/121359727?spm=1001.2014.3001.5501">https://blog.csdn.net/weixin_43933728/article/details/121359727?spm=1001.2014.3001.5501</a></p>
+<p><a href="https://blog.csdn.net/qq_39529562/article/details/108911983">https://blog.csdn.net/qq_39529562/article/details/108911983</a></p>
+]]></content>
+      <categories>
+        <category>API 开放平台</category>
+      </categories>
+      <tags>
+        <tag>星球项目</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>API 开放平台设计</title>
+    <url>/2022/12/22/%E4%B8%80%E3%80%81API%20%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<h1 id="API-开放平台"><a href="#API-开放平台" class="headerlink" title="API 开放平台"></a>API 开放平台</h1><h2 id="第一期"><a href="#第一期" class="headerlink" title="第一期"></a>第一期</h2><p>项目背景：</p>
+<ol>
+<li>前端开发需要用到后端接口</li>
+<li>使用现成的系统的功能（<a href="http://api.btstu.cn/%EF%BC%89">http://api.btstu.cn/）</a></li>
+</ol>
+<p>API 接口平台：</p>
+<ol>
+<li>防止攻击（安全性）</li>
+<li>不能随便调用（限制、开通）</li>
+<li><strong>统计调用次数</strong></li>
+<li>计费</li>
+<li>流量保护</li>
+<li>API 接口</li>
+</ol>
+<h2 id="项目介绍"><a href="#项目介绍" class="headerlink" title="项目介绍"></a>项目介绍</h2><p>做一个提供 API 接口调用的平台，用户可以注册登录，开通接口调用权限，用户可以使用接口，并且每次调用会进行统计。管理员可以发布接口、下线接口、接入接口，以及可视化接口的调用情况、数据。</p>
+<h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><h3 id="前端"><a href="#前端" class="headerlink" title="前端"></a>前端</h3><ul>
+<li>Ant Design Pro</li>
+<li>React</li>
+<li>Ant Design Procompoments</li>
+<li>Umi</li>
+<li>Umi Request (Axios 的封装)</li>
+</ul>
+<h3 id="后端"><a href="#后端" class="headerlink" title="后端"></a>后端</h3><ul>
+<li>Java Spring Boot</li>
+<li>Sring Boot Starter （SDK 开发）</li>
+</ul>
+<h2 id="项目计划"><a href="#项目计划" class="headerlink" title="项目计划"></a>项目计划</h2><h3 id="第一期-—-初始化展示"><a href="#第一期-—-初始化展示" class="headerlink" title="第一期 —- 初始化展示"></a>第一期 —- 初始化展示</h3><p>项目介绍、设计、技术选型</p>
+<p>基础项目搭建</p>
+<p>接口管理</p>
+<p>用户查看接口</p>
+<h3 id="第二期-—-接口调用"><a href="#第二期-—-接口调用" class="headerlink" title="第二期 —- 接口调用"></a>第二期 —- 接口调用</h3><ol>
+<li>继续开发接口管理前端页面</li>
+<li>开发调用这个接口的代码</li>
+<li>保证调用的安全性<strong>（API 签名认证）</strong></li>
+<li>客户端 SDK  的开发</li>
+<li>管理员接口 <strong>发布</strong> 与调用</li>
+<li>接口文档展示、接口在线调用</li>
+</ol>
+<h3 id="第三期-—–-接口计费与保护"><a href="#第三期-—–-接口计费与保护" class="headerlink" title="第三期 —– 接口计费与保护"></a>第三期 —– 接口计费与保护</h3><p>统计用户调用接口次数</p>
+<p>限流</p>
+<p>计费</p>
+<p>日志</p>
+<p>开通</p>
+<h3 id="第四期-—-管理、统计分析"><a href="#第四期-—-管理、统计分析" class="headerlink" title="第四期 —- 管理、统计分析"></a>第四期 —- 管理、统计分析</h3><p>提供可视化平台，用图表的方展示所有接口的调用情况，便于调整业务</p>
+<p><strong>实现预警</strong></p>
+<h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><ol>
+<li>管理员可以对接口信息进行增删改查</li>
+<li>用户可以访问前台，查看接口信息</li>
+</ol>
+<h2 id="数据库表设计"><a href="#数据库表设计" class="headerlink" title="数据库表设计"></a>数据库表设计</h2><h3 id="接口信息表"><a href="#接口信息表" class="headerlink" title="接口信息表"></a>接口信息表</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 接口信息表</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> if <span class="keyword">not</span> <span class="keyword">exists</span> mofeng.`interface_info`</span><br><span class="line">(</span><br><span class="line">    `id` <span class="type">bigint</span> <span class="keyword">not</span> <span class="keyword">null</span> auto_increment comment <span class="string">&#x27;主键&#x27;</span> <span class="keyword">primary</span> key,</span><br><span class="line">    `name` <span class="type">varchar</span>(<span class="number">256</span>) <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;用户名&#x27;</span>,</span><br><span class="line">    `description` <span class="type">varchar</span>(<span class="number">256</span>) <span class="keyword">null</span> comment <span class="string">&#x27;描述&#x27;</span>,</span><br><span class="line">    `url` <span class="type">varchar</span>(<span class="number">512</span>) <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;接口地址&#x27;</span>,</span><br><span class="line">    `requestHeader` text <span class="keyword">null</span> comment <span class="string">&#x27;请求头&#x27;</span>,</span><br><span class="line">    `responseHeader` text <span class="keyword">null</span> comment <span class="string">&#x27;响应头&#x27;</span>,</span><br><span class="line">    `userId` <span class="type">varchar</span>(<span class="number">256</span>) <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;创建人&#x27;</span>,</span><br><span class="line">    `status` <span class="type">int</span> <span class="keyword">default</span> <span class="number">0</span> <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;接口状态（0 - 关闭， 1 - 开启））&#x27;</span>,</span><br><span class="line">    `<span class="keyword">method</span>` <span class="type">varchar</span>(<span class="number">256</span>) <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;请求类型&#x27;</span>,</span><br><span class="line">    `createTime` datetime <span class="keyword">default</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">    `updateTime` datetime <span class="keyword">default</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="keyword">null</span> <span class="keyword">on</span> <span class="keyword">update</span> <span class="built_in">CURRENT_TIMESTAMP</span> comment <span class="string">&#x27;更新时间&#x27;</span>,</span><br><span class="line">    `isDelete` tinyint <span class="keyword">default</span> <span class="number">0</span> <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;是否删除(0-未删, 1-已删)&#x27;</span></span><br><span class="line">    ) comment <span class="string">&#x27;接口信息表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="项目脚手架"><a href="#项目脚手架" class="headerlink" title="项目脚手架"></a>项目脚手架</h2><p>前端：Ant Design Pro 脚手架</p>
+<p>后端：Spring Boot 通用模板</p>
+<h2 id="基础功能"><a href="#基础功能" class="headerlink" title="基础功能"></a>基础功能</h2><p>增删改查、登录（复制、粘贴）</p>
+<p>前端接口调用：oneapi 插件自动生成</p>
+<p>openapi  的规范</p>
+]]></content>
+      <categories>
+        <category>API 开放平台</category>
+      </categories>
+      <tags>
+        <tag>星球项目</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二、API 开放平台-模拟接口</title>
+    <url>/2022/12/22/%E4%BA%8C%E3%80%81API%20%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0-%E6%A8%A1%E6%8B%9F%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[<h1 id="二、API-开放平台-模拟接口"><a href="#二、API-开放平台-模拟接口" class="headerlink" title="二、API 开放平台-模拟接口"></a>二、API 开放平台-模拟接口</h1><h2 id="模拟接口项目-mofeng-interface"><a href="#模拟接口项目-mofeng-interface" class="headerlink" title="模拟接口项目 mofeng-interface"></a>模拟接口项目 mofeng-interface</h2><p>提供三个模拟接口</p>
+<ol>
+<li>GET 接口</li>
+<li>POST 接口（URL 传参）</li>
+<li>POST 接口 （Restful)</li>
+</ol>
+<h3 id="调用接口"><a href="#调用接口" class="headerlink" title="调用接口"></a>调用接口</h3><p>几种 HTTP 调用方式：</p>
+<ol>
+<li>HttpClient</li>
+<li>RestTemplate</li>
+<li>第三方库（OKHTTP、Hutool)</li>
+</ol>
+<p>Hutool:<a href="https://hutool.cn/docs/#/">https://hutool.cn/docs/#/</a></p>
+<p>Http 工具类：<a href="https://hutool.cn/docs/#/http/Http%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B7%A5%E5%85%B7%E7%B1%BB-HttpUtil">https://hutool.cn/docs/#/http/Http%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%B7%A5%E5%85%B7%E7%B1%BB-HttpUtil</a></p>
+<h3 id="API-签名认证"><a href="#API-签名认证" class="headerlink" title="API 签名认证"></a>API 签名认证</h3><p>本质：</p>
+<ol>
+<li>签名签发</li>
+<li>使用签名（校验签名）</li>
+</ol>
+<p>为什么需要签名认证？</p>
+<p>保证安全性，防止恶意调用</p>
+<h3 id="如何实现-API-签名认证呢？"><a href="#如何实现-API-签名认证呢？" class="headerlink" title="如何实现 API 签名认证呢？"></a>如何实现 API 签名认证呢？</h3><p>通过 http request header 头传递参数</p>
+<ul>
+<li><p>参数1： accessKey 调用的标识 userA, userB (复杂、无序、无规律)</p>
+</li>
+<li><p>参数2： secretKey 密钥 （复杂、无序、无规律），<strong>该参数不能放在请求头中</strong></p>
+<p>类似于用户名和密码，区别：accessKey、 secretKey 是无状态的</p>
+<p>密钥一般不用在服务器之间的传递，因为在传递过程中可能被拦截</p>
+</li>
+<li><p>参数3： 用户请求参数</p>
+</li>
+<li><p>参数4： sign</p>
+</li>
+<li><p>参数5：加 none 随机数， 只能用一次（服务端要保存用过的随机数）</p>
+</li>
+<li><p>参数6： 加 timestamp 时间戳， 校验时间戳是否过期</p>
+</li>
+</ul>
+<p>加密方式：对称加密、非对称加密、md5 签名（不可解密）</p>
+<p>用户参数 + 密钥 &#x3D;&gt; <strong>签名生成算法(MD5、Hmac、Sha1)</strong> &#x3D;&gt; 不可解密的值</p>
+<p>如：abc + abcdefgh &#x3D;&gt; sfasfafffsfsa</p>
+<p>如何验证签名？</p>
+<p><strong>服务端用一模一样的参数和算法去生成签名，只要和用户传的一致，就表示一致。</strong></p>
+<p>如果防止重放？</p>
+<p><strong>服务端要保存用过的随机数</strong></p>
+<p><strong>API 签名认证是一个很灵活的设计，具体要有哪个参数、参数名如何需要根据场景来设计。比如： userId、 appId、version、固定值等</strong></p>
+<h2 id="开发一个简单易用的-SDK"><a href="#开发一个简单易用的-SDK" class="headerlink" title="开发一个简单易用的 SDK"></a>开发一个简单易用的 SDK</h2><p>理想状态下：开发者只需要关心调用哪些接口、传递哪些参数、就跟调用自己写的代码一样。</p>
+<p>开发 starter 的好处：开发者引入后，可以直接在 application.yml 中写配置，自动创建客户端</p>
+<p><strong>spring-boot-configuration-processor 的作用是自动生成配置的代码提示</strong></p>
+<h3 id="starter-的开发流程"><a href="#starter-的开发流程" class="headerlink" title="starter 的开发流程"></a>starter 的开发流程</h3><p>初始化，环境依赖（一定要移除 build）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">   &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">   &lt;artifactId&gt;spring-boot-autoconfigure&lt;/artifactId&gt;</span><br><span class="line">   &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">   &lt;dependency&gt;</span><br><span class="line">   &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">   &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;</span><br><span class="line">   &lt;optional&gt;<span class="literal">true</span>&lt;/optional&gt;</span><br><span class="line">   &lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">   &lt;dependency&gt;</span><br><span class="line">   &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">   &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">   &lt;optional&gt;<span class="literal">true</span>&lt;/optional&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>编写配置类（启动类）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="comment">// 能读取 application 中的配置属性</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(&quot;mofeng.client&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MofengClientConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String accessKey;</span><br><span class="line">    <span class="keyword">private</span> String secretKey;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> MofengApiClient <span class="title function_">mofengApiClient</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">MofengApiClient</span>(accessKey, secretKey);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注册配置类</p>
+<p>resources&#x2F;META_INF&#x2F;spring.factories</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"># starter</span><br><span class="line">org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.mofeng.mofengclientsdk.MofengClientConfig</span><br></pre></td></tr></table></figure>
+
+<p>mvn install 打包为本地项目</p>
+<p>创建新项目（复用 server 项目）、测试</p>
+]]></content>
+      <categories>
+        <category>API 开放平台</category>
+      </categories>
+      <tags>
+        <tag>星球项目</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>创建 starter 步骤</title>
+    <url>/2022/12/22/%E5%88%9B%E5%BB%BAstarter%E6%AD%A5%E9%AA%A4/</url>
+    <content><![CDATA[<h1 id="创建starter步骤"><a href="#创建starter步骤" class="headerlink" title="创建starter步骤"></a>创建starter步骤</h1><p>1.新建一个 spring boot 初始化项目<br><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230811084.png" alt="image-20221123081123307"></p>
+<p>2.添加依赖，Lombok, Spring Configuration Processor</p>
+<p>Spring Configuration Processor 的作用是自动生成代码提示<img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230812657.png" alt="image-20221123081227014"></p>
+<p>3.修改 pom 文件的版本号，并删除 build<br><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230816110.png" alt="image-20221123081554107"></p>
+<p>​		<img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230817635.png" alt="image-20221123081718280"></p>
+<p>4.删除原本自动创建的主类，新建一个类, 并添加需要用到的依赖</p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230823121.png" alt="image-20221123082308530"></p>
+<p>5.在 resources 目录下新建 META-INF 目录，并创建 spring.factories 文件，并指定配置类的目录</p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230828618.png" alt="image-20221123082817937"></p>
+<p>6.install 打包构建在本地的仓库</p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230831488.png" alt="image-20221123083107829"></p>
+<p>7.复制 groupId, artifactId, version,可以在其他项目中添加为依赖</p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230833985.png" alt="image-20221123083345988"></p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230834598.png" alt="image-20221123083425190"></p>
+<p>8.在配置文件当中就可以引用 starter 当中设置的属性</p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230836055.png" alt="image-20221123083608433"></p>
+<p>刚才在 starter 配置类中定义的属性</p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230838324.png" alt="image-20221123083825791"></p>
+<p>可以引入 starter 当中的类或者属性</p>
+<p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202211230839280.png" alt="image-20221123083950711"></p>
+]]></content>
+      <categories>
+        <category>API 开放平台</category>
+      </categories>
+      <tags>
+        <tag>星球项目</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>API 开放平台四-网关</title>
+    <url>/2022/12/22/%E5%9B%9B%E3%80%81API-%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0-%E7%BD%91%E5%85%B3/</url>
+    <content><![CDATA[<h1 id="四、网关"><a href="#四、网关" class="headerlink" title="四、网关"></a>四、网关</h1><ol>
+<li>开发接口调用次数的设计</li>
+<li>优化整个系统的架构（API 网关）<ol>
+<li>网关是什么？</li>
+<li>网关的作用</li>
+<li>网关的应用场景及实现</li>
+<li>结合业务应用网关</li>
+</ol>
+</li>
+</ol>
+<h2 id="接口调用次数统计"><a href="#接口调用次数统计" class="headerlink" title="接口调用次数统计"></a>接口调用次数统计</h2><p>需求：</p>
+<ol>
+<li><strong>用户每次调用接口成功，次数 + 1</strong></li>
+<li>给用户分配或者用户自主申请接口调用次数</li>
+</ol>
+<p>业务流程：</p>
+<ol>
+<li>用户调用接口</li>
+<li>修改数据库，调用次数 + 1</li>
+</ol>
+<p>设计库表：</p>
+<p>哪个用户？哪个接口？</p>
+<p>用户 &#x3D;&gt; 接口 （多对多关系）</p>
+<p>用户调用接口关系表：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 用户调用接口关系表</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> if <span class="keyword">not</span> <span class="keyword">exists</span> user_interface_info</span><br><span class="line">(</span><br><span class="line">    id            <span class="type">bigint</span> auto_increment comment <span class="string">&#x27;id&#x27;</span> <span class="keyword">primary</span> key,</span><br><span class="line">    userId        <span class="type">bigint</span>  comment <span class="string">&#x27;调用用户 id&#x27;</span>,</span><br><span class="line">    interfaceInfoId        <span class="type">bigint</span>  comment <span class="string">&#x27;接口 id&#x27;</span>,</span><br><span class="line">    totalNum       <span class="type">int</span>     <span class="keyword">default</span> <span class="number">0</span> comment <span class="string">&#x27;总调用次数&#x27;</span>,</span><br><span class="line">    leftNum       <span class="type">int</span>     <span class="keyword">default</span> <span class="number">0</span> comment <span class="string">&#x27;剩余调用次数&#x27;</span>,</span><br><span class="line">    status       <span class="type">int</span>     <span class="keyword">default</span> <span class="number">0</span> comment <span class="string">&#x27;0-正常， 1-禁用&#x27;</span>,</span><br><span class="line">    createTime    datetime <span class="keyword">default</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">    updateTime    datetime <span class="keyword">default</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">not</span> <span class="keyword">null</span> <span class="keyword">on</span> <span class="keyword">update</span> <span class="built_in">CURRENT_TIMESTAMP</span> comment <span class="string">&#x27;更新时间&#x27;</span>,</span><br><span class="line">    isDelete      tinyint  <span class="keyword">default</span> <span class="number">0</span>                 <span class="keyword">not</span> <span class="keyword">null</span> comment <span class="string">&#x27;是否删除&#x27;</span></span><br><span class="line">) comment <span class="string">&#x27;用户调用接口关系表&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>步骤：</p>
+<ol>
+<li>开发基本的增删改查（给管理员用）</li>
+<li>开发用户调用接口次数 + 1 的功能（service）</li>
+</ol>
+<p>问题：</p>
+<p>如果每个接口的方法都写调用次数 + 1， 过于麻烦</p>
+<p>致命问题：接口开发者需要自己去添加统计代码</p>
+<p><img src="C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20221204192719518.png" alt="image-20221204192719518"></p>
+<p>使用 AOP 切面的优点：独立于接口，在每个接口调用后次数 + 1</p>
+<p>AOP 切面的缺点：只存在单个项目中，如果每个团队都要开发自己的模拟接口，那么都要写一个切面</p>
+<h2 id="网关"><a href="#网关" class="headerlink" title="网关"></a>网关</h2><h3 id="网关的作用"><a href="#网关的作用" class="headerlink" title="网关的作用"></a>网关的作用</h3><ol>
+<li>路由</li>
+<li>负载均衡</li>
+<li>统一鉴权</li>
+<li>跨域</li>
+<li>统一业务处理（缓存）</li>
+<li>访问控制</li>
+<li>发布控制</li>
+<li>流量染色</li>
+<li>接口保护<ol>
+<li>限制请求</li>
+<li>信息脱敏</li>
+<li>降级（熔断）</li>
+<li>限流：学习令牌桶算法、学习漏桶算法，学习一下 RedisLimitHandler</li>
+<li>超时时间</li>
+</ol>
+</li>
+<li>统一日志</li>
+<li>统一文档</li>
+</ol>
+<h3 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h3><p>起到转发的作用，比如有接口 A 和接口 B， 网关会记录这些信息，根据用户访问的地址和参数，转发请求到对应的接口（服务器&#x2F;集群）</p>
+<p>&#x2F;a &#x3D;&gt; 接口 A</p>
+<p>&#x2F;b &#x3D;&gt; 接口 B</p>
+<p>Gateway 路由：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gateway-request-predicates-factories">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#gateway-request-predicates-factories</a></p>
+<h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><p>在路由的基础上</p>
+<p>&#x2F;c &#x3D;&gt; 服务 A &#x2F; 集群 A （随机转发到其中的某一个机器）</p>
+<p>uri 从固定地址改成 lb:xxxx</p>
+<h3 id="统一处理跨域"><a href="#统一处理跨域" class="headerlink" title="统一处理跨域"></a>统一处理跨域</h3><p>网关统一处理跨域，不用在每个项目里单独处理</p>
+<p>GateWay 处理跨域：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#cors-configuration">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#cors-configuration</a></p>
+<h3 id="发布控制"><a href="#发布控制" class="headerlink" title="发布控制"></a>发布控制</h3><p>灰度发布，比如上线新接口，先给新接口分配 20% 的流量，老接口 80%， 再慢慢调整比例</p>
+<p><a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-weight-route-predicate-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-weight-route-predicate-factory</a></p>
+<h3 id="流量染色"><a href="#流量染色" class="headerlink" title="流量染色"></a>流量染色</h3><p>给请求（流量）添加一些标识，一般是设置请求头中，添加新的请求头</p>
+<p><a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-addrequestheader-gatewayfilter-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-addrequestheader-gatewayfilter-factory</a></p>
+<p>全局染色：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#default-filters">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#default-filters</a></p>
+<h3 id="统一接口保护"><a href="#统一接口保护" class="headerlink" title="统一接口保护"></a>统一接口保护</h3><ol>
+<li>限制请求：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#requestheadersize-gatewayfilter-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#requestheadersize-gatewayfilter-factory</a></li>
+<li>信息脱敏：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-removerequestheader-gatewayfilter-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-removerequestheader-gatewayfilter-factory</a></li>
+<li>降级（熔断）：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#fallback-headers">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#fallback-headers</a></li>
+<li>限流：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-requestratelimiter-gatewayfilter-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-requestratelimiter-gatewayfilter-factory</a></li>
+<li>超时时间：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#http-timeouts-configuration">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#http-timeouts-configuration</a></li>
+<li>重试（业务保护）：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-retry-gatewayfilter-factory">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/#the-retry-gatewayfilter-factory</a></li>
+</ol>
+<h3 id="统一业务处理"><a href="#统一业务处理" class="headerlink" title="统一业务处理"></a>统一业务处理</h3><p>把每个项目中都要做的通用逻辑放到上层（网关），统一处理，比如本项目的次数统计</p>
+<h3 id="统一鉴权"><a href="#统一鉴权" class="headerlink" title="统一鉴权"></a>统一鉴权</h3><p>判断用户是否有权限进行操作，无论访问什么接口，都统一验证权限，避免重复写验证权限操作。</p>
+<h3 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h3><p>黑白名单，比如限制 DDOS IP</p>
+<h3 id="统一日志"><a href="#统一日志" class="headerlink" title="统一日志"></a>统一日志</h3><p>统一的请求、响应信息记录</p>
+<h3 id="统一文档"><a href="#统一文档" class="headerlink" title="统一文档"></a>统一文档</h3><p>将下游项目的文档进行聚合，在一个页面统一查看</p>
+<p>可以使用 knife4j : <a href="https://doc.xiaominfo.com/docs/middleware-sources/aggregation-introduction">https://doc.xiaominfo.com/docs/middleware-sources/aggregation-introduction</a></p>
+<h2 id="网关的分类"><a href="#网关的分类" class="headerlink" title="网关的分类"></a>网关的分类</h2><ol>
+<li>全局网关（接入层网关）： 作用是负载均衡、请求日志等，不和业务逻辑绑定</li>
+<li>业务网关（微服务网关）： 存在一些业务逻辑，作用是将请求转发到不同的业务&#x2F;项目&#x2F;接口&#x2F;服务</li>
+</ol>
+<p>参考文章：<a href="https://blog.csdn.net/qq_21040559/article/details/122961395">https://blog.csdn.net/qq_21040559/article/details/122961395</a></p>
+<h2 id="实现网关"><a href="#实现网关" class="headerlink" title="实现网关"></a>实现网关</h2><ol>
+<li>Nginx （全局网关）、Kong 网关 （API 网关， Kong: <a href="https://github.com/Kong/kong">https://github.com/Kong/kong</a>), 编程成本相对高点</li>
+<li>Spring Cloud GateWay (取代了 Zuul ) , 性能高、可以用 Java 代码来写逻辑，适合学习</li>
+</ol>
+<p>网关的技术选型：<a href="https://zhuanlan.zhihu.com/p/500587132">https://zhuanlan.zhihu.com/p/500587132</a></p>
+<h2 id="Spring-Cloud-GateWay-用法"><a href="#Spring-Cloud-GateWay-用法" class="headerlink" title="Spring Cloud GateWay 用法"></a>Spring Cloud GateWay 用法</h2><p>官网：<a href="https://spring.io/projects/spring-cloud-gateway/">https://spring.io/projects/spring-cloud-gateway/</a></p>
+<p>官方文档：<a href="https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/">https://docs.spring.io/spring-cloud-gateway/docs/current/reference/html/</a></p>
+<h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><p>路由（根据什么条件，转发到哪里去）</p>
+<p>断言：一组规则、条件， 用来确定如何转发路由</p>
+<p>过滤器： 对请求进行一系列的处理， 比如添加请求头、添加请求参数</p>
+<p>请求流程：</p>
+<ol>
+<li>客户端发起请求</li>
+<li>Handler Mapping: 根据断言，将请求转发到对应的路由</li>
+<li>Web Handler： 处理请求（一层层经过过滤器）</li>
+<li>实际调用服务</li>
+</ol>
+<p><img src="C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20221204202459676.png" alt="image-20221204202459676"></p>
+<h3 id="两种配置方式"><a href="#两种配置方式" class="headerlink" title="两种配置方式"></a>两种配置方式</h3><ol>
+<li>配置式（方便、规范）<ol>
+<li>简化版</li>
+<li>全称版</li>
+</ol>
+</li>
+<li>编程式（灵活、相对麻烦）</li>
+</ol>
+<h3 id="开启日志"><a href="#开启日志" class="headerlink" title="开启日志"></a>开启日志</h3><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">logging:</span></span><br><span class="line">  <span class="attr">level:</span></span><br><span class="line">    <span class="attr">org:</span></span><br><span class="line">      <span class="attr">springframework:</span></span><br><span class="line">        <span class="attr">cloud:</span></span><br><span class="line">          <span class="attr">gateway:</span> <span class="string">trace</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="断言"><a href="#断言" class="headerlink" title="断言"></a>断言</h3><ol>
+<li>After 在 xx 时间之后</li>
+<li>Before 在 xx 时间之前</li>
+<li>Between 在 xx 时间之间</li>
+<li>请求类别</li>
+<li>请求头（包含 cookie）</li>
+<li>查询参数</li>
+<li>客户端地址</li>
+<li><strong>权重</strong></li>
+</ol>
+<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><p>基本功能：对请求头、请求参数、响应头的增删改查</p>
+<ol>
+<li>添加请求头</li>
+<li>添加请求参数</li>
+<li>添加响应头</li>
+<li>降级</li>
+<li>限流</li>
+<li>重试</li>
+</ol>
+<p>引入：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;spring-cloud-starter-circuitbreaker-reactor-resilience4j&lt;/artifactId&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>API 开放平台</category>
+      </categories>
+      <tags>
+        <tag>星球项目</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>三、API 开放平台-接口发布</title>
+    <url>/2022/12/22/%E4%B8%89%E3%80%81API%20%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0-%E6%8E%A5%E5%8F%A3%E5%8F%91%E5%B8%83/</url>
+    <content><![CDATA[<h1 id="三、接口发布-下线-调用"><a href="#三、接口发布-下线-调用" class="headerlink" title="三、接口发布-下线-调用"></a>三、接口发布-下线-调用</h1><ol>
+<li>开发接口发布、下线的功能（管理员）</li>
+<li>前端去浏览接口、查看接口文档、申请签名（注册）</li>
+<li>在线调试（用户）</li>
+<li>统计用户调用接口的次数</li>
+<li>优化系统 - API 网关</li>
+</ol>
+<h2 id="开发接口发布-x2F-下线功能"><a href="#开发接口发布-x2F-下线功能" class="headerlink" title="开发接口发布&#x2F;下线功能"></a>开发接口发布&#x2F;下线功能</h2><p>后台接口：</p>
+<p>发布接口（仅管理员可操作）</p>
+<ol>
+<li>校验该接口是否存在</li>
+<li>判断该接口是否可以调用</li>
+<li>修改接口数据库中的状态字段为 1</li>
+</ol>
+<p>下线接口（仅管理员可操作）</p>
+<ol>
+<li>校验接口是否存在</li>
+<li>修改接口数据库中的状态字段为 0</li>
+</ol>
+<h2 id="查看接口文档"><a href="#查看接口文档" class="headerlink" title="查看接口文档"></a>查看接口文档</h2><p>动态路由，用 url 来传递 id, 加载不同的接口信息</p>
+<h2 id="申请签名"><a href="#申请签名" class="headerlink" title="申请签名"></a>申请签名</h2><p>用户在注册成功时，自动分配 accessKey、secretKey </p>
+<p>扩展点：用户可以申请更换签名</p>
+<h2 id="在线调用"><a href="#在线调用" class="headerlink" title="在线调用"></a>在线调用</h2><figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;username&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;string&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<p>先跑通整个接口流程，再去针对不同的请求头或者接口类型来设计界面和表单，给用户更好的体验。（可以参考 swagger、postman、knife4j)</p>
+<h2 id="调用流程"><a href="#调用流程" class="headerlink" title="调用流程"></a>调用流程</h2><p><img src="https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com//9963/202212041910410.png" alt="image-20221204191022426"></p>
+<p>流程：</p>
+<ol>
+<li>前端将用户输入的请求参数和要测试的接口 id 发给平台后端</li>
+<li>在调用前可以做一些校验</li>
+<li>平台后端去调用模拟接口</li>
+</ol>
+<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><ul>
+<li>判断该接口是否可以调用时有固定方法名改为根据测试地址来调用</li>
+<li>用户测试接口固定方法名改为根据测试地址来调用</li>
+<li>模拟接口改为从数据库校验 accessKey</li>
+</ul>
+]]></content>
+      <categories>
+        <category>API 开放平台</category>
+      </categories>
+      <tags>
+        <tag>星球项目</tag>
+      </tags>
+  </entry>
 </search>
