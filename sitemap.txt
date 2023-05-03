@@ -1,4 +1,8 @@
+http://example.com/2023/05/03/%E8%81%9A%E5%90%88%E6%90%9C%E7%B4%A2%E4%BC%98%E5%8C%96/
+http://example.com/2023/05/03/Elastic-Stack/
 http://example.com/2023/04/12/%E8%AF%BB%E3%80%8A%E9%9C%8D%E4%B9%B1%E6%97%B6%E6%9C%9F%E7%9A%84%E7%88%B1%E6%83%85%E3%80%8B/
+http://example.com/2023/05/03/%E4%BA%8C%E3%80%81%E8%81%9A%E5%90%88%E6%90%9C%E7%B4%A2%E5%B9%B3%E5%8F%B0%E6%95%B0%E6%8D%AE%E6%8A%93%E5%8F%96/
+http://example.com/2023/05/03/%E4%B8%80%E3%80%81%E8%81%9A%E5%90%88%E6%90%9C%E7%B4%A2%E5%B9%B3%E5%8F%B0%E7%AE%80%E4%BB%8B/
 http://example.com/2023/02/09/%E5%A2%A8%E6%9E%AB%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/
 http://example.com/2023/01/12/%E4%B8%83%E3%80%81API-%E6%8E%A5%E5%8F%A3%E5%88%86%E6%9E%90%E5%8A%9F%E8%83%BD/
 http://example.com/2023/01/03/%E5%85%AD%E3%80%81Dubbo-%E6%A1%86%E6%9E%B6/
@@ -67,3 +71,4 @@ http://example.com/categories/%E4%BC%99%E4%BC%B4%E5%8C%B9%E9%85%8D%E7%B3%BB%E7%B
 http://example.com/categories/API-%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0/
 http://example.com/categories/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6/
 http://example.com/categories/%E5%A2%A8%E6%9E%AB%E7%9A%84%E8%AF%BB%E4%B9%A6%E6%84%9F%E6%83%B3/
+http://example.com/categories/%E8%81%9A%E5%90%88%E6%90%9C%E7%B4%A2%E5%B9%B3%E5%8F%B0/
