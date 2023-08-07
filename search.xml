@@ -5231,7 +5231,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> SysStudentMapper sysStudentMapper;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 查询学生兴趣饼图</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;/pie&quot;)</span></span><br><span class="line"><span class="keyword">public</span> AjaxResult <span class="title function_">pie</span><span class="params">()</span>&#123;</span><br><span class="line">    List&lt;Map&lt;Integer, String&gt;&gt; maps = sysStudentMapper.selectHobbyAndCount();</span><br><span class="line">    <span class="keyword">return</span> AjaxResult.success(maps);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>重启后端项目</p>
-<h3 id="展示"><a href="#展示" class="headerlink" title="展示"></a>展示</h3><p><img src="E:\java\ruoyiSysyem\若依笔记\若依整合-ECharts.assets\image-20230807010211872.png" alt="image-20230807010211872"></p>
+<h3 id="展示"><a href="#展示" class="headerlink" title="展示"></a>展示</h3><p><img src="https://cdn.jsdelivr.net/gh/lumofeng/blog-img/202308072207162.png" alt="image-20230807010211872"></p>
 ]]></content>
       <categories>
         <category>若依项目</category>
@@ -5244,7 +5244,7 @@
     <title>若依生成代码</title>
     <url>/2023/08/07/%E8%8B%A5%E4%BE%9D%E7%94%9F%E6%88%90%E4%BB%A3%E7%A0%81/</url>
     <content><![CDATA[<h1 id="若依生成代码"><a href="#若依生成代码" class="headerlink" title="若依生成代码"></a>若依生成代码</h1><h2 id="新建新的目录"><a href="#新建新的目录" class="headerlink" title="新建新的目录"></a>新建新的目录</h2><p>在菜单管理页面</p>
-<p><img src="E:\java\ruoyiSysyem\若依笔记\若依生成代码.assets\image-20230806233533421.png" alt="image-20230806233533421"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/lumofeng/blog-img/202308072208303.png" alt="image-20230806233533421"></p>
 <p>新增</p>
 <p><img src="https://cdn.jsdelivr.net/gh/lumofeng/blog-img/202308062349653.png" alt="image-20230806233338535"></p>
 <h2 id="建表"><a href="#建表" class="headerlink" title="建表"></a>建表</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="comment">-- Table structure for sys_student</span></span><br><span class="line"><span class="comment">-- ----------------------------</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> IF <span class="keyword">EXISTS</span> `sys_student`;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `sys_student`  (</span><br><span class="line">  `student_id` <span class="type">int</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT COMMENT <span class="string">&#x27;编号&#x27;</span>,</span><br><span class="line">  `student_name` <span class="type">varchar</span>(<span class="number">30</span>) <span class="type">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;&#x27;</span> COMMENT <span class="string">&#x27;学生名称&#x27;</span>,</span><br><span class="line">  `student_age` <span class="type">int</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;年龄&#x27;</span>,</span><br><span class="line">  `student_hobby` <span class="type">varchar</span>(<span class="number">30</span>) <span class="type">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;&#x27;</span> COMMENT <span class="string">&#x27;爱好（0代码 1音乐 2电影）&#x27;</span>,</span><br><span class="line">  `student_sex` <span class="type">char</span>(<span class="number">1</span>) <span class="type">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;0&#x27;</span> COMMENT <span class="string">&#x27;性别（0男 1女 2未知）&#x27;</span>,</span><br><span class="line">  `student_status` <span class="type">char</span>(<span class="number">1</span>) <span class="type">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;0&#x27;</span> COMMENT <span class="string">&#x27;状态（0正常 1停用）&#x27;</span>,</span><br><span class="line">  `student_birthday` datetime <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;生日&#x27;</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`student_id`) <span class="keyword">USING</span> BTREE</span><br><span class="line">) ENGINE <span class="operator">=</span> InnoDB AUTO_INCREMENT <span class="operator">=</span> <span class="number">1</span> <span class="type">CHARACTER</span> <span class="keyword">SET</span> <span class="operator">=</span> utf8 <span class="keyword">COLLATE</span> <span class="operator">=</span> utf8_general_ci COMMENT <span class="operator">=</span> <span class="string">&#x27;学生信息表&#x27;</span> ROW_FORMAT <span class="operator">=</span> <span class="keyword">Dynamic</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SET</span> FOREIGN_KEY_CHECKS <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
@@ -5264,7 +5264,7 @@
 <ol start="4">
 <li>修改字段信息，根据需求勾选是否用字段来进行查询</li>
 </ol>
-<p><img src="E:\java\ruoyiSysyem\若依笔记\若依生成代码.assets\image-20230806234355542.png" alt="image-20230806234355542"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/lumofeng/blog-img/202308072209119.png" alt="image-20230806234355542"></p>
 <ol start="5">
 <li><p>修改生成信息<br><img src="https://cdn.jsdelivr.net/gh/lumofeng/blog-img/202308062349501.png" alt="image-20230806234743717"></p>
 </li>
@@ -5305,7 +5305,7 @@
 <h2 id="前端项目处理"><a href="#前端项目处理" class="headerlink" title="前端项目处理"></a>前端项目处理</h2><ol>
 <li>复制 vue&#x2F;api 生成的文件到前端项目的 api 目录下</li>
 </ol>
-<p><img src="E:\java\ruoyiSysyem\若依笔记\若依生成代码.assets\image-20230807000707852.png" alt="image-20230807000707852"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/lumofeng/blog-img/202308072209469.png" alt="image-20230807000707852"></p>
 <ol start="2">
 <li>复制 vue&#x2F;views 生成的文件到前端项目的 views 目录下</li>
 </ol>
